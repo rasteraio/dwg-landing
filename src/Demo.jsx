@@ -1,18 +1,17 @@
 import { useState, useRef, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   Globe, Upload, Download, CheckCircle2, XCircle,
   LogOut, Eye, EyeOff, FileArchive, AlertTriangle,
   Loader2, ChevronRight, RotateCcw, ArrowLeft
 } from 'lucide-react'
 
-// ─── Constants ────────────────────────────────────────────────────────────────
+// ─── Config ───────────────────────────────────────────────────────────────────
 
 const DEMO_USER = 'demo'
 const DEMO_PASS = 'Rastera$!GeoAI'
 const SESSION_KEY = 'geoconvert_demo_auth'
-
-const API_URL = import.meta.env.VITE_DEMO_API_URL?.replace(/\/$/, '') || 'http://localhost:8000'
+const API_URL = (import.meta.env.VITE_DEMO_API_URL || 'http://localhost:8000').replace(/\/$/, '')
 
 const CRS_OPTIONS = [
   { value: 4326,  label: 'EPSG:4326 — WGS 84 (Geographic)' },
@@ -30,139 +29,6 @@ const CRS_OPTIONS = [
   { value: 2163,  label: 'EPSG:2163 — US National Atlas Equal Area' },
 ]
 
-// ─── Auth gate ────────────────────────────────────────────────────────────────
-
-function AuthGate({ onAuth }) {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPass, setShowPass] = useState(false)
-  const [error, setError]       = useState('')
-  const [loading, setLoading]   = useState(false)
-
-  const submit = (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setError('')
-    setTimeout(() => {
-      if (username === DEMO_USER && password === DEMO_PASS) {
-        sessionStorage.setItem(SESSION_KEY, '1')
-        onAuth()
-      } else {
-        setError('Invalid credentials. Contact your GeoConvert demo rep.')
-        setLoading(false)
-      }
-    }, 600)
-  }
-
-  return (
-    <div className="min-h-screen bg-[#080c18] dot-grid flex flex-col items-center justify-center px-4">
-      {/* Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
-        w-[600px] h-[400px] bg-indigo-600/15 rounded-full blur-[100px] pointer-events-none" />
-
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="relative w-full max-w-sm"
-      >
-        {/* Logo */}
-        <div className="flex items-center justify-center gap-2.5 mb-10">
-          <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-600/40">
-            <Globe size={18} className="text-white" />
-          </div>
-          <span className="text-white font-bold text-xl tracking-tight">GeoConvert</span>
-        </div>
-
-        {/* Card */}
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 backdrop-blur-sm">
-          <h1 className="text-white font-bold text-xl mb-1">Demo access</h1>
-          <p className="text-slate-400 text-sm mb-7">Enter your demo credentials to continue.</p>
-
-          <form onSubmit={submit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1.5">
-                Username
-              </label>
-              <input
-                type="text"
-                autoComplete="username"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
-                required
-                className="w-full bg-white/8 border border-white/10 rounded-xl px-4 py-3
-                  text-white text-sm placeholder:text-slate-600 outline-none
-                  focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
-                placeholder="demo"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1.5">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  type={showPass ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  required
-                  className="w-full bg-white/8 border border-white/10 rounded-xl px-4 py-3 pr-11
-                    text-white text-sm placeholder:text-slate-600 outline-none
-                    focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
-                  placeholder="••••••••"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
-                >
-                  {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-                </button>
-              </div>
-            </div>
-
-            {error && (
-              <motion.div
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex items-center gap-2 text-red-400 text-xs bg-red-400/10
-                  border border-red-400/20 rounded-xl px-3 py-2.5"
-              >
-                <AlertTriangle size={13} />
-                {error}
-              </motion.div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500
-                disabled:opacity-60 disabled:cursor-not-allowed text-white font-semibold
-                py-3 rounded-xl shadow-lg shadow-indigo-600/30 transition-all duration-200
-                hover:-translate-y-0.5 active:translate-y-0 mt-2"
-            >
-              {loading ? <Loader2 size={16} className="animate-spin" /> : null}
-              {loading ? 'Signing in…' : 'Enter demo'}
-              {!loading && <ChevronRight size={15} />}
-            </button>
-          </form>
-        </div>
-
-        <div className="mt-6 text-center">
-          <a href="/" className="text-slate-500 hover:text-slate-300 text-sm transition-colors
-            inline-flex items-center gap-1.5">
-            <ArrowLeft size={13} /> Back to site
-          </a>
-        </div>
-      </motion.div>
-    </div>
-  )
-}
-
-// ─── Processing log ───────────────────────────────────────────────────────────
-
 const STEPS = [
   'Uploading file to processor',
   'Extracting layers from DWG',
@@ -173,17 +39,155 @@ const STEPS = [
   'Packaging geodatabase & report',
 ]
 
+// ─── Shared input styles ──────────────────────────────────────────────────────
+
+const inputCls = [
+  'w-full rounded-xl px-4 py-3 text-sm',
+  'bg-slate-800 border border-slate-700',
+  'text-slate-100 placeholder-slate-500',
+  'focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/30',
+  'transition-colors duration-150',
+].join(' ')
+
+const labelCls = 'block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-1.5'
+
+// ─── Auth gate ────────────────────────────────────────────────────────────────
+
+function AuthGate({ onAuth }) {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [showPass, setShowPass] = useState(false)
+  const [error, setError]       = useState('')
+  const [loading, setLoading]   = useState(false)
+
+  function handleSubmit(e) {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    setTimeout(() => {
+      if (username.trim() === DEMO_USER && password === DEMO_PASS) {
+        sessionStorage.setItem(SESSION_KEY, '1')
+        onAuth()
+      } else {
+        setError('Incorrect credentials. Try again.')
+        setLoading(false)
+      }
+    }, 500)
+  }
+
+  return (
+    <div
+      style={{ background: '#080c18' }}
+      className="min-h-screen flex flex-col items-center justify-center px-4"
+    >
+      <div className="w-full max-w-sm">
+        {/* Logo */}
+        <div className="flex items-center justify-center gap-2.5 mb-10">
+          <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center">
+            <Globe size={18} className="text-white" />
+          </div>
+          <span className="text-white font-bold text-xl tracking-tight">GeoConvert</span>
+        </div>
+
+        {/* Card */}
+        <div
+          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+          className="rounded-2xl p-8"
+        >
+          <h1 className="text-white font-bold text-xl mb-1">Demo access</h1>
+          <p className="text-slate-400 text-sm mb-7">Enter your credentials to continue.</p>
+
+          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="on">
+            {/* Username */}
+            <div>
+              <label htmlFor="demo-username" className={labelCls}>Username</label>
+              <input
+                id="demo-username"
+                type="text"
+                autoComplete="username"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                placeholder="demo"
+                required
+                className={inputCls}
+              />
+            </div>
+
+            {/* Password */}
+            <div>
+              <label htmlFor="demo-password" className={labelCls}>Password</label>
+              <div className="relative">
+                <input
+                  id="demo-password"
+                  type={showPass ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className={inputCls + ' pr-11'}
+                />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  onClick={() => setShowPass(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors"
+                >
+                  {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+
+            {/* Error */}
+            {error && (
+              <div className="flex items-center gap-2 text-red-400 text-xs bg-red-900/30
+                border border-red-700/40 rounded-xl px-3 py-2.5">
+                <AlertTriangle size={13} className="flex-shrink-0" />
+                {error}
+              </div>
+            )}
+
+            {/* Submit */}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex items-center justify-center gap-2 mt-2
+                bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed
+                text-white font-semibold py-3 rounded-xl
+                transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0"
+            >
+              {loading
+                ? <><Loader2 size={15} className="animate-spin" /> Signing in…</>
+                : <><span>Enter demo</span><ChevronRight size={15} /></>
+              }
+            </button>
+          </form>
+        </div>
+
+        <div className="mt-6 text-center">
+          <a href="/" className="inline-flex items-center gap-1.5 text-slate-500
+            hover:text-slate-300 text-sm transition-colors">
+            <ArrowLeft size={13} /> Back to site
+          </a>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ─── Process log ──────────────────────────────────────────────────────────────
+
 function ProcessLog({ steps }) {
   return (
-    <div className="font-mono text-xs space-y-1.5 mt-4">
+    <div className="space-y-2 font-mono text-xs">
       {steps.map((s, i) => (
         <motion.div
           key={i}
           initial={{ opacity: 0, x: -6 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: i * 0.06 }}
+          transition={{ delay: i * 0.05 }}
           className={`flex items-center gap-2.5 ${
-            s.state === 'done'    ? 'text-emerald-400' :
+            s.state === 'done'   ? 'text-emerald-400' :
             s.state === 'active' ? 'text-white'       :
             s.state === 'error'  ? 'text-red-400'     :
                                    'text-slate-600'
@@ -192,7 +196,7 @@ function ProcessLog({ steps }) {
           {s.state === 'done'   && <CheckCircle2 size={12} className="flex-shrink-0" />}
           {s.state === 'active' && <Loader2 size={12} className="flex-shrink-0 animate-spin" />}
           {s.state === 'error'  && <XCircle size={12} className="flex-shrink-0" />}
-          {s.state === 'idle'   && <span className="w-3 h-3 flex-shrink-0" />}
+          {s.state === 'idle'   && <span className="w-3 flex-shrink-0" />}
           {s.label}
         </motion.div>
       ))}
@@ -200,27 +204,45 @@ function ProcessLog({ steps }) {
   )
 }
 
-// ─── Main demo tool ───────────────────────────────────────────────────────────
+// ─── Demo tool ────────────────────────────────────────────────────────────────
 
 function DemoTool({ onLogout }) {
   const [file, setFile]           = useState(null)
   const [dragging, setDragging]   = useState(false)
   const [targetEpsg, setTarget]   = useState(4326)
   const [sourceEpsg, setSource]   = useState('')
-  const [status, setStatus]       = useState('idle') // idle | processing | done | error
+  const [status, setStatus]       = useState('idle')   // idle | processing | done | error
   const [steps, setSteps]         = useState([])
   const [errorMsg, setErrorMsg]   = useState('')
   const [downloadUrl, setDownload]= useState(null)
   const [downloadName, setDlName] = useState('output.zip')
   const fileRef = useRef(null)
 
-  // Simulate step progression during the real API call
-  const runSteps = useCallback(() => {
-    const log = STEPS.map(label => ({ label, state: 'idle' }))
-    setSteps([...log])
+  function pickFile(f) {
+    if (!f) return
+    const ext = f.name.split('.').pop().toLowerCase()
+    if (!['dwg', 'dxf'].includes(ext)) {
+      setErrorMsg('Only .dwg and .dxf files are accepted.')
+      return
+    }
+    setFile(f)
+    setErrorMsg('')
+    setStatus('idle')
+    setDownload(null)
+    setSteps([])
+  }
 
+  function onDrop(e) {
+    e.preventDefault()
+    setDragging(false)
+    pickFile(e.dataTransfer.files[0])
+  }
+
+  const advanceSteps = useCallback(() => {
+    const initial = STEPS.map(label => ({ label, state: 'idle' }))
+    setSteps(initial)
     let idx = 0
-    const tick = () => {
+    function tick() {
       if (idx >= STEPS.length) return
       setSteps(prev => {
         const next = [...prev]
@@ -229,42 +251,17 @@ function DemoTool({ onLogout }) {
         return next
       })
       idx++
-      if (idx < STEPS.length) setTimeout(tick, 1100)
+      if (idx < STEPS.length) setTimeout(tick, 1200)
     }
     tick()
-    return () => {}
   }, [])
 
-  const markAllDone = () =>
-    setSteps(prev => prev.map(s => ({ ...s, state: 'done' })))
-
-  const markError = () =>
-    setSteps(prev => prev.map(s => s.state === 'active' ? { ...s, state: 'error' } : s))
-
-  const onFile = (f) => {
-    if (!f) return
-    const ext = f.name.split('.').pop().toLowerCase()
-    if (!['dwg', 'dxf'].includes(ext)) {
-      setErrorMsg('Only .dwg and .dxf files are supported.')
-      return
-    }
-    setFile(f)
-    setErrorMsg('')
-    setStatus('idle')
-    setDownload(null)
-  }
-
-  const onDrop = (e) => {
-    e.preventDefault(); setDragging(false)
-    onFile(e.dataTransfer.files[0])
-  }
-
-  const process = async () => {
+  async function process() {
     if (!file) return
     setStatus('processing')
     setErrorMsg('')
     setDownload(null)
-    runSteps()
+    advanceSteps()
 
     const form = new FormData()
     form.append('file', file)
@@ -273,14 +270,14 @@ function DemoTool({ onLogout }) {
 
     try {
       const res = await fetch(`${API_URL}/process`, { method: 'POST', body: form })
-
       if (!res.ok) {
-        let msg = `Error ${res.status}`
+        let msg = `Server error ${res.status}`
         try { const j = await res.json(); msg = j.detail || msg } catch {}
         throw new Error(msg)
       }
 
-      markAllDone()
+      // Mark all done
+      setSteps(prev => prev.map(s => ({ ...s, state: 'done' })))
 
       const blob = await res.blob()
       const url  = URL.createObjectURL(blob)
@@ -292,40 +289,44 @@ function DemoTool({ onLogout }) {
       setDlName(name)
       setStatus('done')
     } catch (err) {
-      markError()
-      setErrorMsg(err.message || 'Processing failed. Check server logs.')
+      setSteps(prev => prev.map(s => s.state === 'active' ? { ...s, state: 'error' } : s))
+      setErrorMsg(err.message || 'Processing failed.')
       setStatus('error')
     }
   }
 
-  const reset = () => {
+  function reset() {
+    if (downloadUrl) URL.revokeObjectURL(downloadUrl)
     setFile(null); setStatus('idle'); setSteps([])
     setErrorMsg(''); setDownload(null); setDlName('output.zip')
-    if (downloadUrl) URL.revokeObjectURL(downloadUrl)
   }
 
   return (
-    <div className="min-h-screen bg-[#080c18] flex flex-col">
+    <div style={{ background: '#080c18' }} className="min-h-screen flex flex-col">
+
       {/* Header */}
-      <header className="border-b border-white/8 bg-black/30 backdrop-blur-md sticky top-0 z-10">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
+      <header
+        style={{ borderBottom: '1px solid rgba(255,255,255,0.08)', background: 'rgba(0,0,0,0.4)' }}
+        className="sticky top-0 z-10 backdrop-blur-md"
+      >
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center">
               <Globe size={14} className="text-white" />
             </div>
             <span className="text-white font-semibold text-sm">GeoConvert</span>
-            <span className="text-white/20 text-sm mx-1">·</span>
+            <span className="text-slate-600 mx-1 text-sm">·</span>
             <span className="text-indigo-400 text-xs font-semibold uppercase tracking-widest">Demo</span>
           </div>
           <div className="flex items-center gap-3">
-            <a href="/" className="text-slate-500 hover:text-slate-300 text-xs transition-colors
-              hidden sm:flex items-center gap-1">
+            <a href="/" className="hidden sm:flex items-center gap-1 text-slate-500
+              hover:text-slate-300 text-xs transition-colors">
               <ArrowLeft size={11} /> Back to site
             </a>
             <button
               onClick={onLogout}
-              className="flex items-center gap-1.5 text-slate-500 hover:text-red-400
-                text-xs font-medium transition-colors px-2 py-1.5 rounded-lg hover:bg-red-400/10"
+              className="flex items-center gap-1.5 text-slate-500 hover:text-red-400 text-xs
+                font-medium transition-colors px-2 py-1.5 rounded-lg hover:bg-red-900/20"
             >
               <LogOut size={12} /> Sign out
             </button>
@@ -337,59 +338,51 @@ function DemoTool({ onLogout }) {
       <main className="flex-1 flex items-start justify-center px-4 py-12 sm:py-16">
         <div className="w-full max-w-2xl">
 
-          {/* Title */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-8"
-          >
+          <div className="mb-8">
             <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight mb-2">
               Convert your DWG file
             </h1>
             <p className="text-slate-400 text-sm">
-              Upload a .dwg or .dxf file. We'll clean it and package a File Geodatabase for download.
+              Upload a .dwg or .dxf — we clean it and return a File Geodatabase ZIP.
             </p>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white/5 border border-white/10 rounded-2xl p-6 sm:p-8 space-y-6"
+          <div
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.09)' }}
+            className="rounded-2xl p-6 sm:p-8 space-y-6"
           >
 
             {/* Drop zone */}
             <div>
-              <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">
-                CAD File
-              </label>
+              <label className={labelCls}>CAD File</label>
               <div
+                role="button"
+                tabIndex={0}
                 onClick={() => fileRef.current?.click()}
+                onKeyDown={e => e.key === 'Enter' && fileRef.current?.click()}
                 onDragOver={e => { e.preventDefault(); setDragging(true) }}
                 onDragLeave={() => setDragging(false)}
                 onDrop={onDrop}
-                className={`relative rounded-xl border-2 border-dashed px-6 py-8 text-center cursor-pointer
-                  transition-all duration-200
-                  ${dragging
-                    ? 'border-indigo-500 bg-indigo-500/10'
-                    : file
-                      ? 'border-emerald-500/50 bg-emerald-500/5'
-                      : 'border-white/10 hover:border-indigo-500/50 hover:bg-white/5'
-                  }`}
+                style={{
+                  border: `2px dashed ${dragging ? '#6366f1' : file ? 'rgba(52,211,153,0.5)' : 'rgba(255,255,255,0.12)'}`,
+                  background: dragging ? 'rgba(99,102,241,0.08)' : file ? 'rgba(52,211,153,0.04)' : 'rgba(255,255,255,0.02)',
+                  cursor: 'pointer',
+                }}
+                className="rounded-xl px-6 py-8 text-center transition-all duration-150 outline-none
+                  focus-visible:ring-2 focus-visible:ring-indigo-500"
               >
                 <input
                   ref={fileRef}
                   type="file"
                   accept=".dwg,.dxf"
                   className="sr-only"
-                  onChange={e => onFile(e.target.files[0])}
+                  onChange={e => pickFile(e.target.files[0])}
                 />
-
                 {file ? (
                   <div className="flex items-center justify-center gap-3">
                     <FileArchive size={20} className="text-emerald-400 flex-shrink-0" />
-                    <div className="text-left">
-                      <p className="text-white text-sm font-semibold">{file.name}</p>
+                    <div className="text-left min-w-0">
+                      <p className="text-white text-sm font-semibold truncate">{file.name}</p>
                       <p className="text-slate-400 text-xs mt-0.5">
                         {(file.size / 1024 / 1024).toFixed(2)} MB · Click to change
                       </p>
@@ -398,7 +391,7 @@ function DemoTool({ onLogout }) {
                   </div>
                 ) : (
                   <>
-                    <Upload size={24} className="text-slate-500 mx-auto mb-3" />
+                    <Upload size={22} className="text-slate-500 mx-auto mb-3" />
                     <p className="text-slate-400 text-sm">
                       <span className="text-indigo-400 font-semibold">Click to browse</span> or drag & drop
                     </p>
@@ -411,38 +404,33 @@ function DemoTool({ onLogout }) {
             {/* CRS row */}
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">
-                  Target CRS
-                </label>
+                <label htmlFor="target-crs" className={labelCls}>Target CRS</label>
                 <select
+                  id="target-crs"
                   value={targetEpsg}
                   onChange={e => setTarget(Number(e.target.value))}
-                  className="w-full bg-white/8 border border-white/10 rounded-xl px-3 py-2.5
-                    text-white text-sm outline-none focus:border-indigo-500
-                    focus:ring-2 focus:ring-indigo-500/20 transition-all appearance-none
-                    bg-[url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2212%22 height=%228%22 fill=%22none%22%3E%3Cpath d=%22M1 1l5 5 5-5%22 stroke=%22%237a839e%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/%3E%3C/svg%3E')]
-                    bg-no-repeat bg-[right_12px_center] pr-8"
+                  className={inputCls}
+                  style={{ appearance: 'none' }}
                 >
                   {CRS_OPTIONS.map(o => (
-                    <option key={o.value} value={o.value} className="bg-[#1a1d27]">{o.label}</option>
+                    <option key={o.value} value={o.value}>{o.label}</option>
                   ))}
                 </select>
               </div>
-
               <div>
-                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">
-                  Source CRS Override
-                  <span className="ml-1.5 text-slate-600 normal-case tracking-normal">(optional)</span>
+                <label htmlFor="source-crs" className={labelCls}>
+                  Source CRS Override{' '}
+                  <span className="text-slate-600 normal-case tracking-normal">(optional)</span>
                 </label>
                 <input
+                  id="source-crs"
                   type="number"
                   value={sourceEpsg}
                   onChange={e => setSource(e.target.value)}
                   placeholder="Auto-detect"
-                  min={1024} max={32767}
-                  className="w-full bg-white/8 border border-white/10 rounded-xl px-3 py-2.5
-                    text-white text-sm placeholder:text-slate-600 outline-none
-                    focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                  min={1024}
+                  max={32767}
+                  className={inputCls}
                 />
               </div>
             </div>
@@ -451,11 +439,12 @@ function DemoTool({ onLogout }) {
             <AnimatePresence>
               {errorMsg && (
                 <motion.div
+                  key="error"
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
                   className="flex items-start gap-2.5 text-red-400 text-sm
-                    bg-red-400/10 border border-red-400/20 rounded-xl px-4 py-3"
+                    bg-red-900/20 border border-red-700/40 rounded-xl px-4 py-3"
                 >
                   <AlertTriangle size={15} className="flex-shrink-0 mt-0.5" />
                   <span>{errorMsg}</span>
@@ -467,9 +456,11 @@ function DemoTool({ onLogout }) {
             <AnimatePresence>
               {steps.length > 0 && (
                 <motion.div
+                  key="log"
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
-                  className="bg-black/30 rounded-xl px-5 py-4 border border-white/5"
+                  style={{ background: 'rgba(0,0,0,0.3)', border: '1px solid rgba(255,255,255,0.06)' }}
+                  className="rounded-xl px-5 py-4 overflow-hidden"
                 >
                   <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-3">
                     Processing log
@@ -479,20 +470,20 @@ function DemoTool({ onLogout }) {
               )}
             </AnimatePresence>
 
-            {/* Actions */}
-            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+            {/* CTA row */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-1">
               {status !== 'done' ? (
                 <button
                   onClick={process}
                   disabled={!file || status === 'processing'}
-                  className="flex-1 flex items-center justify-center gap-2 bg-indigo-600
-                    hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed
-                    text-white font-semibold py-3 rounded-xl shadow-lg shadow-indigo-600/30
-                    transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0"
+                  className="flex-1 flex items-center justify-center gap-2
+                    bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 disabled:cursor-not-allowed
+                    text-white font-semibold py-3 rounded-xl
+                    transition-all duration-150 hover:-translate-y-0.5 active:translate-y-0"
                 >
                   {status === 'processing'
-                    ? <><Loader2 size={16} className="animate-spin" /> Processing…</>
-                    : <><Upload size={16} /> Convert file</>
+                    ? <><Loader2 size={16} className="animate-spin" />Processing…</>
+                    : <><Upload size={15} />Convert file</>
                   }
                 </button>
               ) : (
@@ -500,30 +491,30 @@ function DemoTool({ onLogout }) {
                   <a
                     href={downloadUrl}
                     download={downloadName}
-                    className="flex-1 flex items-center justify-center gap-2 bg-emerald-600
-                      hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl
-                      shadow-lg shadow-emerald-600/30 transition-all duration-200
+                    className="flex-1 flex items-center justify-center gap-2
+                      bg-emerald-600 hover:bg-emerald-500 text-white font-semibold
+                      py-3 rounded-xl transition-all duration-150
                       hover:-translate-y-0.5 active:translate-y-0"
                   >
-                    <Download size={16} /> Download {downloadName}
+                    <Download size={15} /> Download {downloadName}
                   </a>
                   <button
                     onClick={reset}
-                    className="flex items-center justify-center gap-2 px-4 py-3 rounded-xl
-                      border border-white/10 text-slate-400 hover:text-white hover:border-white/20
-                      hover:bg-white/5 transition-all duration-200 text-sm font-medium"
+                    style={{ border: '1px solid rgba(255,255,255,0.1)' }}
+                    className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl
+                      text-slate-400 hover:text-white hover:border-white/20
+                      transition-all duration-150 text-sm font-medium"
                   >
-                    <RotateCcw size={14} /> New file
+                    <RotateCcw size={13} /> New file
                   </button>
                 </>
               )}
             </div>
 
-          </motion.div>
+          </div>
 
-          {/* Footer note */}
           <p className="text-center text-slate-600 text-xs mt-6">
-            Files are processed securely and deleted within 24 hours · Powered by GDAL
+            Files processed securely · Deleted within 24 hours · Powered by GDAL
           </p>
         </div>
       </main>
@@ -531,18 +522,19 @@ function DemoTool({ onLogout }) {
   )
 }
 
-// ─── Root demo component ─────────────────────────────────────────────────────
+// ─── Root ─────────────────────────────────────────────────────────────────────
 
 export default function Demo() {
   const [authed, setAuthed] = useState(
     () => sessionStorage.getItem(SESSION_KEY) === '1'
   )
 
-  const logout = () => {
+  function logout() {
     sessionStorage.removeItem(SESSION_KEY)
     setAuthed(false)
   }
 
-  if (!authed) return <AuthGate onAuth={() => setAuthed(true)} />
-  return <DemoTool onLogout={logout} />
+  return authed
+    ? <DemoTool onLogout={logout} />
+    : <AuthGate onAuth={() => setAuthed(true)} />
 }
