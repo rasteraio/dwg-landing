@@ -9,6 +9,7 @@ import {
   ServerCrash, Timer, BadgeCheck, FileX2, Workflow,
   HardDrive, Cpu, BarChart3
 } from 'lucide-react'
+import Demo from './Demo.jsx'
 
 // ─── Animation helpers ────────────────────────────────────────────────────────
 
@@ -107,9 +108,9 @@ function Navbar() {
   }, [])
 
   const links = [
-    { label: 'Features',   href: '#solution'  },
-    { label: 'Pricing',    href: '#pricing'    },
-    { label: 'Use Cases',  href: '#use-cases'  },
+    { label: 'Features',  href: '#solution'  },
+    { label: 'Pricing',   href: '#pricing'   },
+    { label: 'Use Cases', href: '#use-cases' },
   ]
 
   return (
@@ -149,11 +150,13 @@ function Navbar() {
         {/* Desktop CTA */}
         <div className="hidden md:flex items-center gap-3">
           <a
-            href="#pricing"
-            className={`text-sm font-semibold transition-colors
-              ${scrolled ? 'text-slate-600 hover:text-slate-900' : 'text-white/80 hover:text-white'}`}
+            href="/demo"
+            className={`text-sm font-semibold transition-colors px-4 py-2 rounded-xl border
+              ${scrolled
+                ? 'text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                : 'text-white/90 border-white/20 hover:bg-white/10 hover:border-white/30'}`}
           >
-            Sign in
+            Demo
           </a>
           <a
             href="#pricing"
@@ -198,12 +201,12 @@ function Navbar() {
               ))}
               <div className="pt-3 mt-2 border-t border-slate-100 flex flex-col gap-2">
                 <a
-                  href="#pricing"
+                  href="/demo"
                   onClick={() => setOpen(false)}
-                  className="text-center py-2.5 rounded-xl text-sm font-semibold text-slate-600
+                  className="text-center py-2.5 rounded-xl text-sm font-semibold text-slate-700
                     border border-slate-200 hover:bg-slate-50 transition-colors"
                 >
-                  Sign in
+                  Demo
                 </a>
                 <a
                   href="#pricing"
@@ -1089,6 +1092,11 @@ function Footer() {
 // ─── App ──────────────────────────────────────────────────────────────────────
 
 export default function App() {
+  // Simple client-side routing — no dependency needed
+  if (window.location.pathname === '/demo') {
+    return <Demo />
+  }
+
   return (
     <div className="font-sans">
       <Navbar />
