@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
-  Globe, Upload, Download, CheckCircle2, XCircle,
+  Upload, Download, CheckCircle2, XCircle,
   LogOut, Eye, EyeOff, FileArchive, AlertTriangle,
   Loader2, ChevronRight, RotateCcw, ArrowLeft
 } from 'lucide-react'
@@ -82,11 +82,12 @@ function AuthGate({ onAuth }) {
     >
       <div className="w-full max-w-sm">
         {/* Logo */}
-        <div className="flex items-center justify-center gap-2.5 mb-10">
-          <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center">
-            <Globe size={18} className="text-white" />
+        <div className="flex items-center justify-center gap-3 mb-10">
+          <img src="/rastera-logo.png" alt="Rastera" className="h-10 w-10 object-contain" />
+          <div className="flex flex-col leading-none">
+            <span className="text-white font-bold text-xl tracking-tight">GeoConvert</span>
+            <span className="text-slate-500 text-xs mt-1">by Rastera</span>
           </div>
-          <span className="text-white font-bold text-xl tracking-tight">GeoConvert</span>
         </div>
 
         {/* Card */}
@@ -310,12 +311,13 @@ function DemoTool({ onLogout }) {
         className="sticky top-0 z-10 backdrop-blur-md"
       >
         <div className="max-w-3xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center">
-              <Globe size={14} className="text-white" />
+          <div className="flex items-center gap-2.5">
+            <img src="/rastera-logo.png" alt="Rastera" className="h-7 w-7 object-contain" />
+            <div className="flex flex-col leading-none">
+              <span className="text-white font-semibold text-sm leading-none">GeoConvert</span>
+              <span className="text-slate-500 text-[10px] mt-0.5">by Rastera</span>
             </div>
-            <span className="text-white font-semibold text-sm">GeoConvert</span>
-            <span className="text-slate-600 mx-1 text-sm">·</span>
+            <span className="text-slate-600 mx-0.5">·</span>
             <span className="text-indigo-400 text-xs font-semibold uppercase tracking-widest">Demo</span>
           </div>
           <div className="flex items-center gap-3">

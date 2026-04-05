@@ -120,15 +120,18 @@ function Navbar() {
     >
       <nav className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         {/* Logo */}
-        <a href="#" className="flex items-center gap-2.5 group">
-          <div className="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center
-            group-hover:bg-brand-700 transition-colors">
-            <Globe size={16} className="text-white" />
+        <a href="#" className="flex items-center gap-2.5">
+          <img src="/rastera-logo.png" alt="Rastera" className="h-8 w-8 object-contain" />
+          <div className="flex flex-col leading-none">
+            <span className={`font-bold text-base tracking-tight transition-colors
+              ${scrolled ? 'text-slate-900' : 'text-white'}`}>
+              GeoConvert
+            </span>
+            <span className={`text-[10px] font-medium transition-colors mt-0.5
+              ${scrolled ? 'text-slate-400' : 'text-white/45'}`}>
+              by Rastera
+            </span>
           </div>
-          <span className={`font-bold text-lg tracking-tight transition-colors
-            ${scrolled ? 'text-slate-900' : 'text-white'}`}>
-            GeoConvert
-          </span>
         </a>
 
         {/* Desktop nav */}
@@ -325,7 +328,7 @@ function Hero() {
             <div className="w-3 h-3 rounded-full bg-red-500/60" />
             <div className="w-3 h-3 rounded-full bg-yellow-500/60" />
             <div className="w-3 h-3 rounded-full bg-emerald-500/60" />
-            <span className="ml-3 text-xs text-white/30 font-mono">geoconvert.io/process</span>
+            <span className="ml-3 text-xs text-white/30 font-mono">geoconvert.rastera.io/process</span>
           </div>
 
           {/* Terminal-style processing log */}
@@ -1050,10 +1053,11 @@ function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2.5 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
-                <Globe size={15} className="text-white" />
+              <img src="/rastera-logo.png" alt="Rastera" className="h-8 w-8 object-contain" />
+              <div className="flex flex-col leading-none">
+                <span className="text-white font-bold text-base">GeoConvert</span>
+                <span className="text-slate-500 text-[10px] mt-0.5">by Rastera</span>
               </div>
-              <span className="text-white font-bold text-lg">GeoConvert</span>
             </div>
             <p className="text-sm leading-relaxed max-w-xs">
               DWG to geodatabase conversion for GIS professionals. Built on GDAL.
